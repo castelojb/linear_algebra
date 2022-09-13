@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.linear_algebra_resolution import process_matrix_correction, History, backward_substitution
+from src.linear_algebra_resolution import History, backward_substitution
 from src.linear_algebra_resolution.gaussian_elimination import gauss_forward_elimination
 
 
