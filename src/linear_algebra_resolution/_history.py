@@ -31,17 +31,15 @@ class History:
 
 		return out
 
-	def apply_operations_matrix(self, side='left'):
+	def get_acum_op_matrix(self) -> np.ndarray:
 
-		acum_matrix = self.base_matrix.copy()
+		return reduce(lambda a, b: b @ a, self.operations_matrix)
 
-		reduce_function = lambda acum_matrix, op_matrix: op_matrix @ acum_matrix if side == 'left' else lambda acum_matrix, op_matrix: acum_matrix @ op_matrix
+	def apply_operations_matrix(self):
 
-		for op_matrix in self.operations_matrix:
+		acum_matrix = self.get_acum_op_matrix()
 
-			acum_matrix = reduce_function(acum_matrix, op_matrix)
-
-		return acum_matrix
+		return acum_matrix @ self.base_matrix
 
 	@staticmethod
 	def process_matrix(history_matrix: bool, matrix: np.ndarray | None, shape: int) -> np.ndarray:
@@ -93,5 +91,16 @@ class History:
 		dest_rown = matrix[dest_rown_idx, :]
 
 		matrix[dest_rown_idx, :] = dest_rown - (coef * origin_rown)
+
+		return matrix
+
+	@staticmethod
+	def divide_line(origin_rown_idx: int, matrix=None, shape=None, coef=1, history_matrix=False):
+
+		matrix = History.process_matrix(history_matrix, matrix, shape)
+
+		origin_rown = matrix[origin_rown_idx, :]
+
+		matrix[origin_rown_idx, :] = origin_rown / coef
 
 		return matrix
