@@ -9,12 +9,13 @@ from src.linear_algebra_resolution.gaussian_elimination import gaussian_eliminat
 
 def about_page():
 
-	st.text('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+	st.markdown('Desenvolvido pelo aluno João Araújo Castelo Branco para fins didaticos')
+	st.markdown('Email: joaocb14@gmail.com')
 
 
 def linear_algebra_resolution_page():
 
-	uploaded_file = st.file_uploader("Escolha 1 arquivo CSV")
+	uploaded_file = st.file_uploader("Escolha 1 arquivo CSV", type=['csv'])
 
 	if uploaded_file is not None:
 
@@ -64,13 +65,6 @@ def linear_algebra_resolution_page():
 				st.markdown('Matriz @ Inversa')
 				st.write(matrix @ inv)
 
-def resolve_page(option):
-
-	if option == 'Resolução de Sistemas Lineares':
-		linear_algebra_resolution_page()
-	if option == 'Sobre':
-		about_page()
-
 
 if __name__ == '__main__':
 
@@ -78,15 +72,16 @@ if __name__ == '__main__':
 	st.subheader('Totalmente gratuito... mas aceito doações <3')
 
 	options = [
-		'Resolução de Sistemas Lineares',
-		'Sobre'
+		('Sobre', about_page),
+		('Resolução de Sistemas Lineares', linear_algebra_resolution_page),
 	]
 
 	with st.sidebar:
-		setor = st.radio(
+		option = st.radio(
 			'Escolha o setor',
-			options
+			options,
+			format_func=lambda x: x[0]
 		)
 
-	st.subheader(setor)
-	resolve_page(setor)
+	st.subheader(option[0])
+	option[1]()
