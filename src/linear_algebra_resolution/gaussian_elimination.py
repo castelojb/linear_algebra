@@ -2,6 +2,11 @@ import numpy as np
 from src.linear_algebra_resolution import process_matrix_correction, backward_substitution, History
 
 
+class GaussHistory(History):
+	def __init__(self, base_matrix):
+		super().__init__(base_matrix)
+
+
 def gauss_forward_elimination(x_b: np.ndarray, history: History) -> tuple[np.ndarray, np.ndarray, History]:
 
 	x_b = x_b.copy()
@@ -26,12 +31,20 @@ def gauss_forward_elimination(x_b: np.ndarray, history: History) -> tuple[np.nda
 				coef=alpha,
 			)
 
+		x_b = history.acum_operation_and_apply(
+			history.divide_line,
+			origin_rown_idx=i,
+			matrix=x_b,
+			shape=n,
+			coef=x_b[i, i],
+		)
+
 	return x_b, resp_order, history
 
 
 def gaussian_elimination(x: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, History]:
 
-	history = History(x)
+	history = GaussHistory(x)
 
 	x_b = np.column_stack([x, b])
 

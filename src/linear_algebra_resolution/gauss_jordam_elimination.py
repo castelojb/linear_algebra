@@ -4,6 +4,11 @@ from src.linear_algebra_resolution import History, backward_substitution
 from src.linear_algebra_resolution.gaussian_elimination import gauss_forward_elimination
 
 
+class GaussJordamHistory(History):
+	def __init__(self, base_matrix):
+		super().__init__(base_matrix)
+
+
 def jordam_backward_elimination(x_b: np.ndarray, history: History) -> tuple[np.ndarray, History]:
 
 	x_b = x_b.copy()
@@ -23,20 +28,12 @@ def jordam_backward_elimination(x_b: np.ndarray, history: History) -> tuple[np.n
 				coef=alpha,
 			)
 
-		x_b = history.acum_operation_and_apply(
-			history.divide_line,
-			origin_rown_idx=i,
-			matrix=x_b,
-			shape=n,
-			coef=x_b[i, i],
-		)
-
 	return x_b, history
 
 
 def gaussian_jordam_elimination(x: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, History]:
 
-	history = History(x)
+	history = GaussJordamHistory(x)
 
 	x_b = np.column_stack([x, b])
 
