@@ -42,7 +42,7 @@ def gauss_forward_elimination(x_b: np.ndarray, history: History) -> tuple[np.nda
 	return x_b, resp_order, history
 
 
-def gaussian_elimination(x: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, History]:
+def gaussian_elimination(x: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, History, np.ndarray]:
 
 	history = GaussHistory(x)
 
@@ -52,4 +52,4 @@ def gaussian_elimination(x: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, Hist
 
 	resp = backward_substitution(x_forward)
 
-	return resp[resp_order], history
+	return resp[resp_order], history, x_forward[:, :-1]

@@ -1,15 +1,14 @@
-from io import StringIO
-
-import pandas as pd
 import streamlit as st
+from numpy import loadtxt
 
-from src.linear_algebra_resolution.gauss_jordam_elimination import gaussian_jordam_elimination
-from src.linear_algebra_resolution.gaussian_elimination import gaussian_elimination
+from src.pages.gauss_jordam_page import show_gauss_jordam_page
+from src.pages.gauss_page import show_gauss_page
+from src.pages.lu_page import show_lu_page
 
 
 def about_page():
 
-	st.markdown('Desenvolvido pelo aluno João Araújo Castelo Branco para fins didaticos')
+	st.markdown('Desenvolvido por João Araújo Castelo Branco para fins didaticos')
 	st.markdown('Email: joaocb14@gmail.com')
 
 
@@ -19,51 +18,22 @@ def linear_algebra_resolution_page():
 
 	if uploaded_file is not None:
 
-		x_b = pd.read_csv(uploaded_file).to_numpy()
+		x = loadtxt(uploaded_file, delimiter=',')
 
-		matrix = x_b[:, :-2]
-		b = x_b[:, -1]
-
-		st.markdown('Equações')
-		st.write(matrix)
-
-		st.markdown('Contantes')
-		st.write(b)
-
-		options = [
-			('Gauss', gaussian_elimination),
-			('Gauss-Jordam', gaussian_jordam_elimination)
+		page_options = [
+			('Gauss', show_gauss_page),
+			('Gauss-Jordam', show_gauss_jordam_page),
+			('Lower-Upper', show_lu_page)
 		]
 
-		option = st.radio(
+		page_option = st.radio(
 			'Escolha o metodo para resolver o sistema',
-			options,
-			format_func=lambda x: x[0]
+			page_options,
+			format_func=lambda tuple_: tuple_[0]
 		)
 
-		method = option[1]
-		resp, hist = method(matrix, b)
-
-		st.markdown("Vetor de Resposta")
-		st.write(resp)
-
-		st.markdown("Matriz @ Vetor de Resposta")
-		st.write(matrix @ resp)
-
-		show_hist = st.checkbox('Historico')
-		if show_hist:
-			st.markdown('Matrizes de Operações')
-			for op_matrix in hist.operations_matrix:
-				st.write(op_matrix)
-
-			if option[0] != 'Gauss':
-
-				st.markdown('Inversa')
-				inv = hist.get_acum_op_matrix()
-				st.write(inv)
-
-				st.markdown('Matriz @ Inversa')
-				st.write(matrix @ inv)
+		page = page_option[1]
+		page(x)
 
 
 if __name__ == '__main__':
