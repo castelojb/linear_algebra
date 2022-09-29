@@ -7,6 +7,7 @@ from src.pages.gauss_page import show_gauss_page
 from src.pages.gram_schmidt_page import show_gram_schmidt_page
 from src.pages.least_squares import show_ols_page
 from src.pages.lu_page import show_lu_page
+from src.pages.rref_page import show_rref_page
 
 
 def about_page():
@@ -29,7 +30,8 @@ def linear_algebra_resolution_page():
 			('Lower-Upper', show_lu_page),
 			('Cholesk Decomposition', show_cholesky_page),
 			('Gram-Schmidt', show_gram_schmidt_page),
-			('Metodo dos Minimos Quadrados Ordinarios', show_ols_page)
+			('Metodo dos Minimos Quadrados Ordinarios', show_ols_page),
+			('RREF', show_rref_page)
 		]
 
 		page_option = st.radio(
