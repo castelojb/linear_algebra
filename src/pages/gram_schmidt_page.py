@@ -1,7 +1,6 @@
 import numpy as np
 import streamlit as st
 
-from src.linear_algebra_resolution.gauss_jordam_elimination import gaussian_jordam_elimination
 from src.linear_algebra_resolution.gram_schmidt import gram_schmidt_from_cholesky
 
 
