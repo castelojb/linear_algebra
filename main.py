@@ -1,6 +1,7 @@
 import streamlit as st
 from numpy import loadtxt
 
+from src.pages.cholesky_page import show_cholesky_page
 from src.pages.gauss_jordam_page import show_gauss_jordam_page
 from src.pages.gauss_page import show_gauss_page
 from src.pages.lu_page import show_lu_page
@@ -23,7 +24,8 @@ def linear_algebra_resolution_page():
 		page_options = [
 			('Gauss', show_gauss_page),
 			('Gauss-Jordam', show_gauss_jordam_page),
-			('Lower-Upper', show_lu_page)
+			('Lower-Upper', show_lu_page),
+			('Cholesk Decomposition', show_cholesky_page)
 		]
 
 		page_option = st.radio(
