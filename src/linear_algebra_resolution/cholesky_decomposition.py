@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def cholesky_decomposition(x: np.ndarray) -> np.ndarray:
 
     x = x.copy()
@@ -9,7 +10,7 @@ def cholesky_decomposition(x: np.ndarray) -> np.ndarray:
 
     for k in range(n):
 
-        if x[k, k] <=0:
+        if x[k, k] <= 0:
             err_txt = f"""\n{x} not is positive defined"""
             raise NameError(err_txt)
 
