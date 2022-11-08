@@ -18,7 +18,10 @@ def show_rref_page(x: np.ndarray):
 	st.markdown('Posto da Matriz')
 	st.write(np.linalg.matrix_rank(rref_form))
 
+	null_space_dim = sum([
+		all(np.isclose(line, 0)) for line in rref_form
+	])
 	st.markdown('Dimensão do Espaço Nulo')
-	st.write(null_space(rref_form).shape)
+	st.write(null_space_dim)
 
 
