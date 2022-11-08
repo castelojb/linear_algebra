@@ -15,12 +15,11 @@ def show_rref_page(x: np.ndarray):
 	st.markdown('Forma RRE')
 	st.write(rref_form)
 
+	rank = np.linalg.matrix_rank(rref_form)
 	st.markdown('Posto da Matriz')
-	st.write(np.linalg.matrix_rank(rref_form))
+	st.write(rank)
 
-	null_space_dim = sum([
-		all(np.isclose(line, 0)) for line in rref_form
-	])
+	null_space_dim = x.shape[0] - rank if x.shape[0] > x.shape[1] else x.shape[1] - rank
 	st.markdown('Dimensão do Espaço Nulo')
 	st.write(null_space_dim)
 
