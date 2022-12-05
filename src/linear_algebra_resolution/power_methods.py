@@ -1,8 +1,5 @@
 import numpy as np
 
-from src.linear_algebra_resolution.gaussian_elimination import gaussian_elimination
-from src.linear_algebra_resolution.lu_decomposition import lu_resolution
-
 
 def regular_power_method(
     a: np.ndarray,
