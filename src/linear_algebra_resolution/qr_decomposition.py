@@ -1,5 +1,7 @@
 import numpy as np
 
+from src.linear_algebra_resolution.householder_method import householder
+
 
 def householder_matrix(a: np.ndarray, c: int) -> np.ndarray:
 
@@ -40,23 +42,98 @@ def qr_decomposition(a: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
     return q, ab
 
+def make_vector_under_principal_dialg(d: np.ndarray) -> np.ndarray:
+    vectors = np.concatenate(
+        [
+            d[i + 1:, i]
+            for i in range(d.shape[0])
+        ]
+    )
 
-def check_len(d: np.ndarray):
-
-    vectors = np.concatenate([
-        d[i+1:, i]
-        for i in range(d.shape[0])
-    ])
-
-    return np.linalg.norm(vectors, 2)
+    return vectors
 
 
-def qr_method(a: np.ndarray, h: np.ndarray, eps: float = 000.1, iter_max=1000) -> tuple[np.ndarray, np.ndarray]:
+def simetric_convergence(l: np.ndarray, l_past: np.ndarray, eps: float) -> bool:
+
+    return np.linalg.norm(l, 2) < eps
+
+
+def not_simetric_convergence(l: np.ndarray, l_past: np.ndarray, eps: float) -> bool:
+
+    dist = np.linalg.norm(l - l_past)
+    return abs(dist) < eps
+
+
+def extract_bts(d: np.ndarray) -> list[np.ndarray | float]:
+    bts = []
+
+    idx = 0
+    while idx <= d.shape[0]-1:
+
+        if idx == d.shape[0]-1 or np.isclose(d[idx+1, idx], 0):
+            bts.append(d[idx, idx])
+            idx += 1
+            continue
+
+        bts.append(np.array([
+            [d[idx, idx], d[idx, idx+1]],
+            [d[idx+1, idx], d[idx+1, idx + 1]]
+        ]))
+
+        idx += 2
+
+    return bts
+
+
+def find_roots(a: float, b: float, c: float) -> tuple[float, float] | float | \
+                                               tuple[np.complex, np.complex]:
+    dis_form = b * b - 4 * a * c
+    sqrt_val = np.sqrt(np.abs(dis_form))
+
+    if dis_form > 0:
+        return ((-b + sqrt_val) / (2 * a)), ((-b - sqrt_val) / (2 * a))
+
+    elif dis_form == 0:
+        return -b / (2 * a)
+
+    else:
+        return (- b / (2 * a)) + 1j, (- b / (2 * a)) - 1j
+
+
+def not_simetric_extract_eignvalues(d: np.ndarray) -> list[float | tuple[float, float]]:
+    bts = extract_bts(d)
+
+    eignvalues = [
+
+        find_roots(
+            1,
+            block[0, 0] + block[1, 1],
+            (block[0, 0]*block[1, 1]) - (block[0, 1]*block[1, 0])
+        ) if not isinstance(block, float) else block for block in bts
+
+    ]
+
+    return eignvalues
+
+
+def simetric_extract_eignvalues(d: np.ndarray) -> np.ndarray:
+    return np.diag(d)
+
+
+def qr_method(a: np.ndarray, eps: float = 000.1) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     d = a.copy()
+
+    a_hat, h = householder(a)
     p = h.copy()
 
-    i = 0
+    is_simetric = np.isclose(a, a.T).all()
+
+    convergence_function = simetric_convergence if is_simetric else not_simetric_convergence
+    eignvalues_extractor = simetric_extract_eignvalues if is_simetric else not_simetric_extract_eignvalues
+
+    l_past = make_vector_under_principal_dialg(d)
+
     while True:
 
         q, r = qr_decomposition(d)
@@ -65,8 +142,10 @@ def qr_method(a: np.ndarray, h: np.ndarray, eps: float = 000.1, iter_max=1000) -
 
         p = p @ q
 
-        l = check_len(d)
-        if l < eps:
+        l = make_vector_under_principal_dialg(d)
+        if convergence_function(l, l_past, eps):
             break
 
-    return d, p
+        l_past = l.copy()
+
+    return d, p, eignvalues_extractor(d)
