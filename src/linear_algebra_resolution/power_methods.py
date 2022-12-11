@@ -9,21 +9,26 @@ def regular_power_method(
 ) -> tuple[np.ndarray, float, bool]:
 
     a = a.copy()
+    n, m = a.shape
 
-    x = np.ones(a.shape[0]) if x is None else x.copy()
+    x = np.ones(min(n, m)) if x is None else x.copy()
 
     converged = False
 
     eigenvalue = 0
     last_eigenvalue = eigenvalue
 
+    b = a.T @ a if n > m else a @ a.T
+
     for _ in range(iterr_max):
 
         x_hat = x / np.linalg.norm(x)
 
-        x = a @ x_hat
+        x = b @ x_hat
 
-        eigenvalue = x_hat @ x
+        # eigenvalue = x_hat @ x
+        v = a @ x_hat if n > m else a.T @ x_hat
+        eigenvalue = np.linalg.norm(v)
 
         if abs((eigenvalue - last_eigenvalue) / eigenvalue) < eps:
             converged = True

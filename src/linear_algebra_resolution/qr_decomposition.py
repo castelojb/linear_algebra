@@ -42,6 +42,7 @@ def qr_decomposition(a: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
     return q, ab
 
+
 def make_vector_under_principal_dialg(d: np.ndarray) -> np.ndarray:
     vectors = np.concatenate(
         [
