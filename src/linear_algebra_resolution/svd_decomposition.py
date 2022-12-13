@@ -3,7 +3,7 @@ import numpy as np
 from src.linear_algebra_resolution.power_methods import regular_power_method
 
 
-def svd(a, k=None, eps=1e-10):
+def svd(a: np.ndarray, k=None, eps=1e-10):
 
     a = a.astype(float)
     a_ = a.copy()
