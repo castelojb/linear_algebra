@@ -1,13 +1,20 @@
 import streamlit as st
 from numpy import loadtxt
 
+from src.pages.cg_page import show_cg_page
 from src.pages.cholesky_page import show_cholesky_page
+from src.pages.eig_qr_method_page import show_eig_qr_page
 from src.pages.gauss_jordam_page import show_gauss_jordam_page
 from src.pages.gauss_page import show_gauss_page
 from src.pages.gram_schmidt_page import show_gram_schmidt_page
+from src.pages.householder_page import show_householder_page
 from src.pages.least_squares import show_ols_page
 from src.pages.lu_page import show_lu_page
+from src.pages.power_methods_page import show_power_methods_page
+from src.pages.qr_decomposition import show_qr_decomposition_page
 from src.pages.rref_page import show_rref_page
+from src.pages.sor_page import show_sor_page
+from src.pages.svd_page import show_svd_page
 
 
 def about_page():
@@ -31,7 +38,14 @@ def linear_algebra_resolution_page():
 			('Cholesk Decomposition', show_cholesky_page),
 			('Gram-Schmidt', show_gram_schmidt_page),
 			('Metodo dos Minimos Quadrados Ordinarios', show_ols_page),
-			('RREF', show_rref_page)
+			('RREF', show_rref_page),
+			('Metodos da Potencia', show_power_methods_page),
+			('Householder', show_householder_page),
+			('Decomposição QR', show_qr_decomposition_page),
+			('Auto-Valores/Auto-Vetores QR', show_eig_qr_page),
+			('SOR', show_sor_page),
+			('SVD', show_svd_page),
+			('Gradientes Conjulgados', show_cg_page)
 		]
 
 		page_option = st.radio(
