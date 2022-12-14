@@ -23,19 +23,29 @@ def householder_matrix(a: np.ndarray, c: int) -> np.ndarray:
     return h
 
 
-def householder(a: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def householder(a: np.ndarray, with_history=False) -> tuple[np.ndarray, np.ndarray] | tuple[np.ndarray, np.ndarray, list[tuple[np.ndarray, np.ndarray, np.ndarray]]]:
 
     n = a.shape[0]
 
     ab = a.copy()
     
     h = np.eye(n)
-    
+
+    history = []
     for c in range(n-2):
         
         hc = householder_matrix(ab, c)
 
         ab = hc @ ab @ hc
         h = h @ hc
+
+        if with_history:
+
+            history.append(
+                (hc, ab, h)
+            )
+
+    if with_history:
+        return ab, h, history
 
     return ab, h

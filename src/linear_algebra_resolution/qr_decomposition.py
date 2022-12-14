@@ -1,6 +1,9 @@
+import itertools
+
 import numpy as np
 
 from src.linear_algebra_resolution.householder_method import householder
+from src.linear_algebra_resolution.power_methods import regular_power_method
 
 
 def householder_matrix(a: np.ndarray, c: int) -> np.ndarray:
@@ -26,23 +29,6 @@ def householder_matrix(a: np.ndarray, c: int) -> np.ndarray:
     return h
 
 
-def qr_decomposition(a: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-
-    n = a.shape[0]
-    ab = a.copy()
-    q = np.eye(n)
-
-    for c in range(n-1):
-
-        hc = householder_matrix(ab, c)
-
-        ab = hc @ ab
-
-        q = q @ hc
-
-    return q, ab
-
-
 def make_vector_under_principal_dialg(d: np.ndarray) -> np.ndarray:
     vectors = np.concatenate(
         [
@@ -65,7 +51,7 @@ def not_simetric_convergence(l: np.ndarray, l_past: np.ndarray, eps: float) -> b
     return abs(dist) < eps
 
 
-def extract_bts(d: np.ndarray) -> list[np.ndarray | float]:
+def extract_bts(d: np.ndarray) -> list[np.ndarray | float] | tuple[list[np.ndarray | float], list[int]]:
     bts = []
 
     idx = 0
@@ -86,7 +72,7 @@ def extract_bts(d: np.ndarray) -> list[np.ndarray | float]:
     return bts
 
 
-def find_roots(a: float, b: float, c: float) -> tuple[float, float] | float | \
+def find_roots(a: float, b: float, c: float) -> tuple[float, float] | list[float] | \
                                                tuple[np.complex, np.complex]:
     dis_form = b * b - 4 * a * c
     sqrt_val = np.sqrt(np.abs(dis_form))
@@ -95,13 +81,29 @@ def find_roots(a: float, b: float, c: float) -> tuple[float, float] | float | \
         return ((-b + sqrt_val) / (2 * a)), ((-b - sqrt_val) / (2 * a))
 
     elif dis_form == 0:
-        return -b / (2 * a)
+        return [-b / (2 * a)]
 
     else:
         return (- b / (2 * a)) + 1j, (- b / (2 * a)) - 1j
 
 
-def not_simetric_extract_eignvalues(d: np.ndarray) -> list[float | tuple[float, float]]:
+def block_elimination(B, y=np.zeros((2, 1))):
+    pivot = B[0, 0]
+    pivot_conj = np.conjugate(pivot)
+    B_01 = (B[0, 1] * pivot_conj) / (pivot * pivot_conj)
+    y_0 = (y[0, 0] * pivot_conj) / (pivot * pivot_conj)
+    B_11 = B[1, 0] * B_01 - B[1, 1]
+    y_1 = B[1, 0] * y_0 - y[1, 0]
+    if np.isclose(B_11, 0):
+        x1 = y_0 - B_01
+        x2 = 1
+    else:
+        x2 = y_1 / B_11
+        x1 = y_0 - B_01 * x2
+    return np.array([x1, x2])
+
+
+def not_simetric_extract_eignvalues(d: np.ndarray, p: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     bts = extract_bts(d)
 
     eignvalues = [
@@ -110,28 +112,55 @@ def not_simetric_extract_eignvalues(d: np.ndarray) -> list[float | tuple[float, 
             1,
             block[0, 0] + block[1, 1],
             (block[0, 0]*block[1, 1]) - (block[0, 1]*block[1, 0])
-        ) if not isinstance(block, float) else block for block in bts
+        ) if not isinstance(block, float) else [block] for block in bts
 
     ]
 
-    return eignvalues
+    flatlist_eignvalues = np.array(list(itertools.chain.from_iterable(eignvalues)))
+    resps = []
+    for eignvalue in flatlist_eignvalues:
+
+        d_ = d - (eignvalue * np.eye(d.shape[0]))
+
+        resp, _, _ = regular_power_method(d_)
+
+        resps.append(resp)
+
+    return flatlist_eignvalues, np.vstack(resps)
 
 
-def simetric_extract_eignvalues(d: np.ndarray) -> np.ndarray:
-    return np.diag(d)
+def simetric_extract_eignvalues(d: np.ndarray, p: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    return np.diag(d), p
 
 
-def qr_method(a: np.ndarray, eps: float = 000.1) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def qr_decomposition(a: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+
+    n = a.shape[0]
+    ab = a.copy()
+    q = np.eye(n)
+
+    for c in range(n-1):
+
+        hc = householder_matrix(ab, c)
+
+        ab = hc @ ab
+
+        q = q @ hc
+
+    return q, ab
+
+
+def qr_method(a: np.ndarray, eps: float = 000.1) -> tuple[np.ndarray, np.ndarray]:
 
     d = a.copy()
 
-    a_hat, h = householder(a)
-    p = h.copy()
-
+    # a_hat, h = householder(a)
+    # p = h.copy()
+    p = np.eye(a.shape[0])
     is_simetric = np.isclose(a, a.T).all()
 
     convergence_function = simetric_convergence if is_simetric else not_simetric_convergence
-    eignvalues_extractor = simetric_extract_eignvalues if is_simetric else not_simetric_extract_eignvalues
+    eig_extractor = simetric_extract_eignvalues if is_simetric else not_simetric_extract_eignvalues
 
     l_past = make_vector_under_principal_dialg(d)
 
@@ -149,4 +178,4 @@ def qr_method(a: np.ndarray, eps: float = 000.1) -> tuple[np.ndarray, np.ndarray
 
         l_past = l.copy()
 
-    return d, p, eignvalues_extractor(d)
+    return eig_extractor(d, p)
