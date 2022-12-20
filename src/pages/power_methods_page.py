@@ -28,7 +28,7 @@ def show_power_methods_page(a_b: np.ndarray):
 	st.write(inverse_eigvector)
 
 	st.markdown('Potencia com Deslocamento')
-	mu = st.number_input(label="Shifted", min_value=0.5, step=0.1, max_value=2, value=2, format="%f")
+	mu = float(st.text_input('Deslocamento', '2.0'))
 	shifted_eigvector, shifted_eigvalue, _ = shifted_power_method(a, x=b, mu=mu, iterr_max=1000)
 	st.write(shifted_eigvalue)
 	st.write(shifted_eigvector)
